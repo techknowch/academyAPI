@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Laravel\Passport\Passport;
 
 
 class AuthController extends Controller
@@ -13,9 +13,15 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        // Retrieve the user based on the provided email
+        $user = User::where('email', $request->input('email'))->first();
 
-        if (Auth::attempt($credentials)) {
+        if (!$user) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // Attempt authentication with the provided credentials
+        if (Auth::attempt(['email' => $request->input('email'), 'password' => $request->input('password')])) {
             $user = Auth::user();
 
             // Revoke existing tokens
@@ -29,5 +35,6 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Unauthorized'], 401);
     }
+
 
 }

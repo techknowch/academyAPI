@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CourseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Laravel\Jetstream\Http\Controllers\Inertia\UserProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,4 +28,9 @@ Route::middleware('auth:api')->get('/api/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/courses', [CourseController::class, 'store'])->middleware('auth:api');
+
+Route::group(['middleware' => ['role:admin']], function () {
+    //
+    Route::post('/courses', [CourseController::class, 'store'])->middleware('auth:api');
+    Route::post('/getPermissions', [CourseController::class, 'showPermissions'])->middleware('auth:api');
+});
